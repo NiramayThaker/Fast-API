@@ -1,17 +1,27 @@
 from fastapi import FastAPI, HTTPException
+from enum import Enum
 
 app = FastAPI()
 
+
+class GenreURLChoices(Enum):
+	"""
+	GenreURLChoices is Enum type which allows user to
+	select data from given specific type
+	"""
+
+	ROCK = 'rock'
+	ELECTRONIC = 'electronic'
+	METAL = 'metal'
+	HIP_HOP = 'hip-hop'
+
+
 BANDS = [
 	{"id": 1, "name": "Led Zeppelin", "genre": "Rock"},
-	{"id": 2, "name": "Pink Floyd", "genre": "Progressive Rock"},
-	{"id": 3, "name": "The Beatles", "genre": "Pop Rock"},
-	{"id": 4, "name": "Metallica", "genre": "Heavy Metal"},
-	{"id": 5, "name": "AC/DC", "genre": "Hard Rock"},
-	{"id": 6, "name": "Nirvana", "genre": "Grunge"},
-	{"id": 7, "name": "Queen", "genre": "Rock"},
-	{"id": 8, "name": "Coldplay", "genre": "Alternative Rock"},
-	{"id": 9, "name": "Green Day", "genre": "Punk Rock"}
+	{"id": 2, "name": "Pink Floyd", "genre": "Electronic"},
+	{"id": 3, "name": "Queen", "genre": "Rock"},
+	{"id": 4, "name": "Metallica", "genre": "Hip Hop"},
+	{"id": 5, "name": "AC/DC", "genre": "Metal"},
 ]
 
 
@@ -27,3 +37,10 @@ async def read_root(band_id: int) -> dict:
 		raise HTTPException(status_code=404, detail='Band not found')
 
 	return bands
+
+
+@app.get("/bands/genre/{genre}")
+async def bands_for_genre(genre: GenreURLChoices) -> list[dict]:
+	return [
+		b for b in BANDS if b['genre'].lower() == genre.value
+	]
