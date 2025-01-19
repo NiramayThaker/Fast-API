@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import FastAPI, HTTPException
 from app.schemas import GenreURLChoices, Band
 
@@ -9,8 +11,8 @@ BANDS = [
 		"name": "Led Zeppelin",
 		"genre": "rock",
 		"albums": [
-			{"title": "Led Zeppelin I", "release_date": "1969-01-12"},
-			{"title": "Led Zeppelin II", "release_date": "1969-10-22"},
+			# {"title": "Led Zeppelin I", "release_date": "1969-01-12"},
+			# {"title": "Led Zeppelin II", "release_date": "1969-10-22"},
 		],
 	},
 	{
@@ -62,12 +64,32 @@ BANDS = [
 
 
 @app.get("/bands")
-async def read_root() -> list[Band]:
-	return [Band(**b) for b in BANDS]
+async def bands(
+		genre: Optional[GenreURLChoices] = None,
+		has_albums: bool = False,
+) -> list[Band]:
+	"""
+	Making query parameter optional (it can accept None)
+	Also gets default behavior of GenreURLChoices for data filtering
+	"""
+
+	band_list = [Band(**b) for b in BANDS]
+
+	if genre:
+		band_list = [
+			b for b in band_list if b.genre.lower() == genre.value
+		]
+
+	if has_albums:
+		band_list = [
+			b for b in band_list if b.albums != []
+		]
+
+	return band_list
 
 
 @app.get("/bands/{band_id}")
-async def read_root(band_id: int) -> Band:
+async def get_bands(band_id: int) -> Band:
 	bands = next((Band(**b) for b in BANDS if b['id'] == band_id), None)
 	if bands is None:
 		raise HTTPException(status_code=404, detail='Band not found')

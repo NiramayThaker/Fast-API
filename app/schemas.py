@@ -15,8 +15,6 @@ class GenreURLChoices(Enum):
 	HIP_HOP = 'hip-hop'
 
 
-
-
 class Album(BaseModel):
 	title: str
 	release_date: date
