@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from app.schemas import GenreURLChoices, Band
+from app.schemas import GenreURLChoices, BandBase, BandCreate, BandWithId
 
 app = FastAPI()
 
@@ -67,13 +67,13 @@ BANDS = [
 async def bands(
 		genre: Optional[GenreURLChoices] = None,
 		has_albums: bool = False,
-) -> list[Band]:
+) -> list[BandWithId]:
 	"""
 	Making query parameter optional (it can accept None)
 	Also gets default behavior of GenreURLChoices for data filtering
 	"""
 
-	band_list = [Band(**b) for b in BANDS]
+	band_list = [BandWithId(**b) for b in BANDS]
 
 	if genre:
 		band_list = [
@@ -89,8 +89,8 @@ async def bands(
 
 
 @app.get("/bands/{band_id}")
-async def get_bands(band_id: int) -> Band:
-	bands = next((Band(**b) for b in BANDS if b['id'] == band_id), None)
+async def get_bands(band_id: int) -> BandWithId:
+	bands = next((BandWithId(**b) for b in BANDS if b['id'] == band_id), None)
 	if bands is None:
 		raise HTTPException(status_code=404, detail='Band not found')
 
@@ -102,3 +102,12 @@ async def bands_for_genre(genre: GenreURLChoices) -> list[dict]:
 	return [
 		b for b in BANDS if b['genre'].lower() == genre.value
 	]
+
+
+@app.post("/bands")
+async def create_band(band_data: BandCreate) -> BandWithId:
+	id = BANDS[-1]['id'] + 1
+	band = BandWithId(id=id, **band_data.model_dump()).model_dump()
+	BANDS.append(band)
+
+	return band
