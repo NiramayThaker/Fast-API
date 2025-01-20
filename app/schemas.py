@@ -16,10 +16,10 @@ class GenreURLChoices(Enum):
 
 
 class GenreChoices(Enum):
-	ROCK = 'Rock'
-	ELECTRONIC = 'Electronic'
-	METAL = 'Metal'
-	HIP_HOP = 'Hip-Hop'
+	ROCK = 'rock'
+	ELECTRONIC = 'rlectronic'
+	METAL = 'metal'
+	HIP_HOP = 'hip-hop'
 
 
 class Album(BaseModel):
