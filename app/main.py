@@ -1,6 +1,6 @@
 from typing import Optional, Annotated
 from fastapi import FastAPI, HTTPException, Path, Query
-from app.schemas import GenreURLChoices, BandBase, BandCreate, BandWithId
+from app.models import GenreURLChoices, BandCreate, Band, Album
 
 app = FastAPI()
 
@@ -60,48 +60,50 @@ BANDS = [
 
 
 
-@app.get("/bands")
-async def bands(
-    genre: Optional[GenreURLChoices] = None,
-    q: Annotated[Optional[str], Query(max_length=10)] = None
-) -> list[BandWithId]:
-    """
-    Making query parameter optional (it can accept None)
-    Also gets default behavior of GenreURLChoices for data filtering
-    """
-    band_list = [BandWithId(**b) for b in BANDS]
+# @app.get("/bands")
+# async def bands(
+#     genre: Optional[GenreURLChoices] = None,
+#     q: Annotated[Optional[str], Query(max_length=10)] = None
+# ) -> list[BandWithId]:
+#     """
+#     Making query parameter optional (it can accept None)
+#     Also gets default behavior of GenreURLChoices for data filtering
+#     """
+#     band_list = [BandWithId(**b) for b in BANDS]
 
-    if genre:
-        band_list = [
-            b for b in band_list if b.genre.value.lower() == genre.value.lower()
-        ]
+#     if genre:
+#         band_list = [
+#             b for b in band_list if b.genre.value.lower() == genre.value.lower()
+#         ]
 
-    if q:
-        band_list = [b for b in band_list if q.lower() in b.name.lower()]
+#     if q:
+#         band_list = [b for b in band_list if q.lower() in b.name.lower()]
 
-    return band_list
-
-
-@app.get("/bands/{band_id}")
-async def get_bands(band_id: Annotated[int, Path(title="The band ID")]) -> BandWithId:
-	bands = next((BandWithId(**b) for b in BANDS if b['id'] == band_id), None)
-	if bands is None:
-		raise HTTPException(status_code=404, detail='Band not found')
-
-	return bands
+#     return band_list
 
 
-@app.get("/bands/genre/{genre}")
-async def bands_for_genre(genre: GenreURLChoices) -> list[dict]:
-	return [
-		b for b in BANDS if b['genre'].lower() == genre.value
-	]
+# @app.get("/bands/{band_id}")
+# async def get_bands(band_id: Annotated[int, Path(title="The band ID")]) -> BandWithId:
+# 	bands = next((BandWithId(**b) for b in BANDS if b['id'] == band_id), None)
+# 	if bands is None:
+# 		raise HTTPException(status_code=404, detail='Band not found')
+
+# 	return bands
 
 
-@app.post("/bands")
-async def create_band(band_data: BandCreate) -> BandWithId:
-	id = BANDS[-1]['id'] + 1
-	band = BandWithId(id=id, **band_data.model_dump()).model_dump()
-	BANDS.append(band)
+# @app.get("/bands/genre/{genre}")
+# async def bands_for_genre(genre: GenreURLChoices) -> list[dict]:
+# 	return [
+# 		b for b in BANDS if b['genre'].lower() == genre.value
+# 	]
 
-	return band
+
+# @app.post("/bands")
+# async def create_band(band_data: BandCreate) -> BandWithId:
+# 	id = BANDS[-1]['id'] + 1
+# 	band = BandWithId(id=id, **band_data.model_dump()).model_dump()
+# 	BANDS.append(band)
+
+# 	return band
+
+
